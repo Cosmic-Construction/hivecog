@@ -1,0 +1,24 @@
+# Build artifacts and object files
+*.o
+*.a
+*.md5
+__pycache__/
+ARCH_BUILD
+hived-*
+common/bzip2*/
+!common/bzip2*/*.c
+!common/bzip2*/*.h
+!common/bzip2*/Makefile*
+!common/bzip2*/README*
+!common/bzip2*/LICENSE*
+
+# Generated files
+init_strings.c
+init_crypto_strings.c
+proj_strings.h
+proj_strings_main.h
+crypto_proj_strings.h
+crypto_strings_main.h
+
+# Python cache
+*.pyc

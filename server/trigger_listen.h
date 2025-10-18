@@ -23,7 +23,9 @@
 
 #define MAX_PKT 1750
 
-int TriggerListen(int trigger_delay, unsigned long delete_delay);
+struct autognosis_engine;
+struct hive_coordinator;
+int TriggerListen(int trigger_delay, unsigned long delete_delay, struct autognosis_engine *autognosis, struct hive_coordinator *hive_coord);
 
 // TODO: delete this prototype
 int trigger_main( int argc, char ** argv);
