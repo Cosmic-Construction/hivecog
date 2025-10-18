@@ -57,7 +57,7 @@ def obfs( inputStr, flag ):
     
     #print "bytes toUse after rencode: %s" %bytesToUse
     for b in bytesToUse:
-        inv = ord(b)
+        inv = ord(b) if isinstance(b, str) else b
         # 2's complement negate
         inv = ~inv % 0xFF + 1
         invert += ("0x%x, " % inv)
