@@ -57,12 +57,14 @@ int main() {
     self_maintenance_start(autopoietic);
     
     // Add network topology for realistic testing
-    topology_add_node(autognosis->topology, 1, "192.168.1.10");
-    topology_add_node(autognosis->topology, 2, "192.168.1.20");
-    topology_add_node(autognosis->topology, 3, "192.168.1.30");
-    topology_update_node_health(autognosis->topology, 1, 0.9f);
-    topology_update_node_health(autognosis->topology, 2, 0.8f);
-    topology_update_node_health(autognosis->topology, 3, 0.7f);
+    if (autognosis->topology) {
+        topology_add_node(autognosis->topology, 1, "192.168.1.10");
+        topology_add_node(autognosis->topology, 2, "192.168.1.20");
+        topology_add_node(autognosis->topology, 3, "192.168.1.30");
+        topology_update_node_health(autognosis->topology, 1, 0.9f);
+        topology_update_node_health(autognosis->topology, 2, 0.8f);
+        topology_update_node_health(autognosis->topology, 3, 0.7f);
+    }
     
     printf("\n=== Testing Homeostatic Image Projection ===\n");
     
@@ -210,7 +212,7 @@ int main() {
                    autopoietic->adaptation_aggressiveness, autopoietic->adaptation_effectiveness);
         }
         
-        sleep(1);
+        usleep(500000);  // 500ms delay for faster testing
     }
     
     printf("\n=== Testing System Enhancement Functions ===\n");
@@ -256,13 +258,13 @@ int main() {
         printf("Stress cycle %d: Performance=%.3f, Autopoiesis=%.3f\n", 
                i + 1, performance, autopoiesis);
         
-        sleep(1);
+        usleep(500000);  // 500ms delay for faster testing
     }
     
     printf("\n=== Testing Projected Image Accuracy ===\n");
     
     // Test projection accuracy by comparing with actual outcomes
-    if (autopoietic->projected_images) {
+    if (autopoietic && autopoietic->projected_images) {
         homeostatic_image_t *image = autopoietic->projected_images;
         while (image) {
             printf("Image '%s':\n", image->image_name);
@@ -270,11 +272,13 @@ int main() {
                    image->performance_projection, image->projection_confidence);
             
             // Simulate actual outcome
-            float actual_performance = virtual_engine_measure_performance(homeostatic->virtual_engine);
-            homeostatic_image_update_confidence(image, actual_performance);
-            
-            printf("  Actual performance: %.3f, updated confidence: %.3f\n",
-                   actual_performance, image->projection_confidence);
+            if (homeostatic && homeostatic->virtual_engine) {
+                float actual_performance = virtual_engine_measure_performance(homeostatic->virtual_engine);
+                homeostatic_image_update_confidence(image, actual_performance);
+                
+                printf("  Actual performance: %.3f, updated confidence: %.3f\n",
+                       actual_performance, image->projection_confidence);
+            }
             
             image = image->next;
         }
@@ -295,26 +299,30 @@ int main() {
     
     // Display feedforward engine states
     printf("\nFeedforward engine states:\n");
-    feedforward_engine_t *current_engine = autopoietic->feedforward_engines;
-    int engine_num = 1;
-    while (current_engine) {
-        printf("  Engine %d (%s): Accuracy=%.3f, Stability=%.3f, Predictions=%u\n",
-               engine_num, current_engine->name, current_engine->prediction_accuracy,
-               current_engine->model_stability, current_engine->prediction_count);
-        current_engine = current_engine->next;
-        engine_num++;
+    if (autopoietic && autopoietic->feedforward_engines) {
+        feedforward_engine_t *current_engine = autopoietic->feedforward_engines;
+        int engine_num = 1;
+        while (current_engine) {
+            printf("  Engine %d (%s): Accuracy=%.3f, Stability=%.3f, Predictions=%u\n",
+                   engine_num, current_engine->name, current_engine->prediction_accuracy,
+                   current_engine->model_stability, current_engine->prediction_count);
+            current_engine = current_engine->next;
+            engine_num++;
+        }
     }
     
     // Display anticipatory action states
     printf("\nAnticipatory action states:\n");
-    anticipatory_action_t *current_action = autopoietic->anticipatory_actions;
-    int action_num = 1;
-    while (current_action) {
-        printf("  Action %d (%s): Success=%.3f, Effectiveness=%.3f, Executions=%u\n",
-               action_num, current_action->action_name, current_action->success_rate,
-               current_action->average_effectiveness, current_action->execution_count);
-        current_action = current_action->next;
-        action_num++;
+    if (autopoietic && autopoietic->anticipatory_actions) {
+        anticipatory_action_t *current_action = autopoietic->anticipatory_actions;
+        int action_num = 1;
+        while (current_action) {
+            printf("  Action %d (%s): Success=%.3f, Effectiveness=%.3f, Executions=%u\n",
+                   action_num, current_action->action_name, current_action->success_rate,
+                   current_action->average_effectiveness, current_action->execution_count);
+            current_action = current_action->next;
+            action_num++;
+        }
     }
     
     printf("\n=== Demonstrating Constructive Transformation ===\n");
