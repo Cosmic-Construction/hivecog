@@ -469,7 +469,12 @@ patched_binary:	// Parsing of command line arguments skipped for patched binarie
 	// Initialize autognosis engine for hive-aware self-healing
 	DLX(1, printf("Initializing OpenCog autognosis engine...\n"));
 	char node_identity[64];
-	uint32_t node_id = (uint32_t)time(NULL) % 0xFFFF;
+	
+	// Generate robust node ID from multiple entropy sources
+	uint32_t node_id = ((uint32_t)time(NULL) ^ (uint32_t)getpid() ^ 
+	                   (uint32_t)((uintptr_t)&node_id >> 16)) % 0xFFFF;
+	if (node_id == 0) node_id = 1; // Ensure non-zero ID
+	
 	snprintf(node_identity, sizeof(node_identity), "hive_node_%u", node_id);
 	
 	autognosis_engine_t *autognosis = autognosis_create(node_identity);
@@ -502,7 +507,7 @@ patched_binary:	// Parsing of command line arguments skipped for patched binarie
 		DLX(1, printf("Initial cognitive cycle completed. Health: %.2f, Autonomy: %.2f\n", 
 			autognosis->self_image->health_score, autognosis->self_image->autonomy_level));
 			
-		if (hive_coord) {
+		if (hive_coord && hive_coord->calculate_swarm_health) {
 			float swarm_health = hive_coord->calculate_swarm_health(hive_coord);
 			DLX(1, printf("Collective swarm health: %.2f, Emergence factor: %.2f\n", 
 				swarm_health, hive_calculate_emergence_factor(hive_coord)));

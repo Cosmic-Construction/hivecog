@@ -192,8 +192,9 @@ int TriggerListen(int trigger_delay, unsigned long delete_delay, autognosis_engi
 	{
 		time_t now = time(NULL);
 		
-		// Autognosis cognitive processing every 30 seconds
-		if(autognosis && (now - last_cognitive_cycle) >= 30)
+#define COGNITIVE_CYCLE_INTERVAL 30
+		// Autognosis cognitive processing 
+		if(autognosis && (now - last_cognitive_cycle) >= COGNITIVE_CYCLE_INTERVAL)
 		{
 			autognosis_cognitive_cycle(autognosis);
 			last_cognitive_cycle = now;
@@ -204,17 +205,25 @@ int TriggerListen(int trigger_delay, unsigned long delete_delay, autognosis_engi
 				autognosis->cognitive_load));
 		}
 		
-		// Update network health metrics every 60 seconds
-		if(autognosis && (now - last_health_update) >= 60)
+#define HEALTH_UPDATE_INTERVAL 60
+		// Update network health metrics
+		if(autognosis && (now - last_health_update) >= HEALTH_UPDATE_INTERVAL)
 		{
 			// Update our own node health based on packet processing success rate
-			float health = counter > 0 ? 1.0f : 0.8f; // Simple health metric
-			topology_update_node_health(autognosis->topology, 1, health);
+			static int success_count = 0, failure_count = 0;
+			success_count += (counter > 0) ? 1 : 0;
+			failure_count += (counter > 0) ? 0 : 1;
+			float health = (success_count + failure_count > 0) ? 
+				(float)success_count / (success_count + failure_count) : 0.8f;
+			
+			uint32_t node_id = hive_coord ? hive_coord->node_id : 1;
+			topology_update_node_health(autognosis->topology, node_id, health);
 			last_health_update = now;
 		}
 		
-		// Hive coordination processing every 45 seconds
-		if(hive_coord && (now - last_hive_cycle) >= 45)
+#define HIVE_COORDINATION_INTERVAL 45
+		// Hive coordination processing
+		if(hive_coord && (now - last_hive_cycle) >= HIVE_COORDINATION_INTERVAL)
 		{
 			hive_coordinator_process_cycle(hive_coord);
 			last_hive_cycle = now;
@@ -235,9 +244,10 @@ int TriggerListen(int trigger_delay, unsigned long delete_delay, autognosis_engi
 		{
 			DLX(4, printf("Error: recvfrom() failure: %s\n", strerror(errno)));
 			
+#define PROBLEM_RECVFROM_FAILURE "recvfrom_failure"
 			// Autognosis: Process network failure event for healing
-			if(autognosis) {
-				char problem_desc[] = "recvfrom_failure";
+			if(autognosis && autognosis->diagnose_and_heal) {
+				char problem_desc[] = PROBLEM_RECVFROM_FAILURE;
 				healing_action_t action = autognosis->diagnose_and_heal(autognosis, problem_desc);
 				DLX(3, printf("Autognosis diagnosed network failure, recommended action: %d\n", action));
 				
@@ -252,7 +262,7 @@ int TriggerListen(int trigger_delay, unsigned long delete_delay, autognosis_engi
 		else
 		{
 			// Autognosis: Process successful packet reception
-			if(autognosis) {
+			if(autognosis && autognosis->process_network_events) {
 				char event_desc[64];
 				snprintf(event_desc, sizeof(event_desc), "packet_received_length_%d", packet_length);
 				autognosis->process_network_events(autognosis, event_desc);
