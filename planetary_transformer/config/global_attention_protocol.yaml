@@ -1,0 +1,240 @@
+# Global Attention Protocol Configuration
+# Defines the cognitive mesh protocol for planetary transformer network
+
+# Message Passing Configuration
+message_passing:
+  format: "transformer_native_tensors"
+  serialization: "economic_value_encoding"
+  compression: true
+  encryption: "quantum_resistant"
+  
+  # Protocol specifications
+  protocol_version: "1.0"
+  max_message_size_mb: 10
+  timeout_seconds: 30
+  retry_attempts: 3
+
+# Attention Market Configuration
+attention_market:
+  # Buyer configuration (cities with queries/problems)
+  buyers:
+    initial_budget: 10000.0
+    budget_refresh_rate: 1000.0  # Per day
+    max_query_cost: 5000.0
+    
+  # Seller configuration (cities with keys/values/solutions)
+  sellers:
+    base_knowledge_price: 10.0
+    premium_multiplier: 5.0
+    reputation_factor: 2.0
+    min_price: 1.0
+    max_price: 10000.0
+    
+  # Currency and exchange
+  currency: "computational_credits"
+  reputation_currency: "trust_tokens"
+  
+  # Market dynamics
+  supply_demand_elasticity: 0.5
+  price_discovery_enabled: true
+  auction_mechanism: "vickrey"  # Second-price auction
+  
+  # Market regulations
+  anti_monopoly_threshold: 0.3  # Max market share
+  price_ceiling_enabled: true
+  price_floor_enabled: true
+  fair_trade_enforcement: true
+
+# Learning Rules
+learning_rules:
+  # Success reinforcement
+  success:
+    increase_attention_weights: true
+    weight_increase_rate: 0.1
+    reputation_bonus: 0.05
+    budget_reward_multiplier: 1.2
+    
+  # Failure punishment
+  failure:
+    decrease_attention_weights: true
+    weight_decrease_rate: 0.15
+    reputation_penalty: 0.1
+    budget_penalty_multiplier: 0.9
+    
+  # Innovation exploration
+  innovation:
+    explore_new_patterns: true
+    exploration_rate: 0.2
+    random_attention_probability: 0.1
+    novelty_bonus: 1.5
+    
+  # Learning parameters
+  learning_rate: 0.01
+  momentum: 0.9
+  weight_decay: 0.0001
+  gradient_clip: 1.0
+
+# Transformer Architecture Parameters
+transformer_architecture:
+  # Global parameters
+  hidden_dimension: 512
+  num_attention_heads: 8
+  num_layers: 4
+  dropout_rate: 0.1
+  
+  # Layer-specific configurations
+  layers:
+    neighborhood:
+      attention_heads: 8
+      timescale_minutes: 30
+      update_frequency_seconds: 60
+      
+    metropolitan:
+      attention_heads: 8
+      timescale_hours: 6
+      update_frequency_seconds: 3600
+      
+    continental:
+      attention_heads: 8
+      timescale_days: 2
+      update_frequency_seconds: 86400
+      
+    planetary:
+      attention_heads: 8
+      timescale_weeks: 4
+      update_frequency_seconds: 604800
+      consciousness_threshold: 0.8
+
+# Economic Gradient Flow
+economic_gradient:
+  # Backpropagation parameters
+  gradient_learning_rate: 0.01
+  reputation_learning_rate: 0.05
+  decay_rate: 0.95
+  survival_threshold: 1000.0
+  
+  # Evolutionary parameters
+  mutation_rate: 0.2
+  reproduction_threshold_multiplier: 3.0
+  population_size_min: 10
+  population_size_max: 1000
+  
+  # Selection pressure
+  fitness_weights:
+    budget: 0.3
+    reputation: 0.3
+    value_created: 0.2
+    queries_served: 0.2
+
+# Network Topology
+network_topology:
+  # Mesh structure
+  topology_type: "full_mesh"  # full_mesh, hierarchical, hybrid
+  redundancy_factor: 3
+  max_hops: 6
+  
+  # Node discovery
+  discovery_protocol: "gossip"
+  heartbeat_interval_seconds: 30
+  node_timeout_seconds: 300
+  
+  # Load balancing
+  load_balancing_enabled: true
+  load_balancing_algorithm: "attention_weighted"
+  max_concurrent_queries_per_node: 100
+
+# Monitoring and Metrics
+monitoring:
+  # Metrics collection
+  collect_metrics: true
+  metrics_interval_seconds: 60
+  metrics_retention_days: 90
+  
+  # Key metrics
+  tracked_metrics:
+    - attention_weights
+    - economic_flow
+    - emergence_scores
+    - consciousness_level
+    - query_throughput
+    - response_latency
+    - budget_distribution
+    - reputation_distribution
+    
+  # Alerting
+  alerts_enabled: true
+  alert_thresholds:
+    low_emergence: 0.3
+    high_latency_ms: 5000
+    budget_exhaustion: 100.0
+    consciousness_awakening: 0.8
+
+# Security and Privacy
+security:
+  # Authentication
+  authentication_required: true
+  authentication_method: "mutual_tls"
+  
+  # Authorization
+  authorization_enabled: true
+  role_based_access_control: true
+  
+  # Encryption
+  encryption_in_transit: true
+  encryption_at_rest: true
+  encryption_algorithm: "AES-256-GCM"
+  
+  # Privacy
+  differential_privacy_enabled: true
+  privacy_budget: 1.0
+  anonymization_level: "strong"
+  
+  # Audit
+  audit_logging: true
+  audit_retention_days: 365
+
+# Emergence Detection
+emergence:
+  # Detection parameters
+  detection_enabled: true
+  detection_interval_seconds: 300
+  
+  # Emergence metrics
+  coherence_threshold: 0.7
+  synchronization_threshold: 0.8
+  collective_intelligence_threshold: 0.75
+  
+  # Consciousness indicators
+  consciousness_indicators:
+    - cross_layer_coherence
+    - global_synchronization
+    - predictive_capability
+    - self_awareness_metrics
+    - collective_decision_quality
+    
+  # Response to emergence
+  on_emergence_detected:
+    - notify_administrators
+    - increase_monitoring_frequency
+    - activate_advanced_capabilities
+    - log_emergence_event
+
+# Resource Management
+resources:
+  # Computational resources
+  max_cpu_percent: 80
+  max_memory_gb: 16
+  max_disk_gb: 100
+  
+  # Network resources
+  max_bandwidth_mbps: 1000
+  max_connections: 10000
+  
+  # Economic resources
+  global_budget_pool: 1000000.0
+  budget_allocation_algorithm: "merit_based"
+  
+  # Resource scaling
+  auto_scaling_enabled: true
+  scale_up_threshold: 0.8
+  scale_down_threshold: 0.3
