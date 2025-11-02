@@ -285,12 +285,13 @@ Autognosis Engine and Planetary Transformer: See repository license
 
 ## References
 
-- WikiLeaks Vault 8: https://wikileaks.org/vault8/
-- OpenCog: https://opencog.org/
-- Transformer Architecture (Vaswani et al., 2017)
-- Autogenetic Systems Theory
-- Collective Intelligence Research
-- Economic Game Theory
+- **WikiLeaks Vault 8**: https://wikileaks.org/vault8/
+- **OpenCog Framework**: https://opencog.org/
+- **Transformer Architecture**: Vaswani, A., et al. (2017). "Attention Is All You Need." NeurIPS. https://arxiv.org/abs/1706.03762
+- **Autopoiesis Theory**: Maturana, H. R., & Varela, F. J. (1980). "Autopoiesis and Cognition: The Realization of the Living."
+- **Collective Intelligence**: Woolley, A. W., et al. (2010). "Evidence for a Collective Intelligence Factor." Science.
+- **Economic Game Theory**: Von Neumann, J., & Morgenstern, O. (1944). "Theory of Games and Economic Behavior."
+- **Swarm Intelligence**: Bonabeau, E., Dorigo, M., & Theraulaz, G. (1999). "Swarm Intelligence: From Natural to Artificial Systems."
 
 ---
 
